@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Mapping Water Points</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css' rel='stylesheet'/>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+    #instructions {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #fff;
+      padding: 5px 20px 5px 20px;
+      border-radius: 10px;
+      font-family: Lato, sans-serif;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <div id="instructions">
+    <h2>🚰 Instructions</h2>
+    <p>Click anywhere on the map to see water sites within a 500m radius. Stand alone water sites will be highlighted in red.</p>
+  </div>
+  <script>
+    // Data showing water points - replace the dummy URL with your own.
+    var url = 'https://raw.githubusercontent.com/USERNAME/'
+
+
+    mapboxgl.accessToken = 'Your Access Token Goes Here!';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/satellite-v9', // imagery basemap - you may choose something else
+      center: [36.3295, 32.2963], // starting position at Zaatari Camp
+      zoom: 14, // starting zoom
+    });
+
+    map.on('load', function () {
+
+      // Map layers go here!
+    });
+
+    //Click event goes here!
+
+    //makeRadius function goes here!
+
+    //spatialJoin function goes here!
+
+  </script>
+
+</body>
+
+</html>
