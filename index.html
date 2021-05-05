@@ -27,6 +27,7 @@
       left: 20px;
       background-color: #fff;
       padding: 5px 20px 5px 20px;
+      border: 1px solid green;
       border-radius: 10px;
       font-family: Lato, sans-serif;
     }
@@ -38,17 +39,17 @@
   <div id="map"></div>
   <div id="instructions">
     <h2>🚰 Instructions</h2>
-    <p>Click anywhere on the map to see water sites within a 500m radius. Stand alone water sites will be highlighted in red.</p>
+    <p>Click anywhere on the map to see water sites within a 500m radius. Stand alone water sites will be highlighted in dark blue.</p>
   </div>
   <script>
     // Data showing water points - replace the dummy URL with your own.
-    var url = 'https://raw.githubusercontent.com/USERNAME/'
+    var url = 'https://raw.githubusercontent.com/sreault/studio-week5/main/points.geojson'
 
 
-    mapboxgl.accessToken = 'Your Access Token Goes Here!';
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3JlYXVsdCIsImEiOiJja25qYXF4OGMwODlwMm9tMmF3a2V5cHh5In0.rmpWlPsAnyN1YBg4XTJQug';
     var map = new mapboxgl.Map({
       container: 'map',
-      style: 'mapbox://styles/mapbox/satellite-v9', // imagery basemap - you may choose something else
+      style: 'mapbox://styles/sreault/ckobh3caw13wd17rzk5wi11nr', // imagery basemap - you may choose something else
       center: [36.3295, 32.2963], // starting position at Zaatari Camp
       zoom: 14, // starting zoom
     });
@@ -56,13 +57,79 @@
     map.on('load', function () {
 
       // Map layers go here!
+      map.addLayer({
+  id: 'OSM-water',
+  source: {
+    type: 'geojson',
+    data: url
+  },
+  type: 'circle',
+  paint: {
+    'circle-color': '#e6ffff',
+    'circle-radius': 3,
+    'circle-opacity': 1,
+    'circle-stroke-width': 1,
+    'circle-stroke-color': '#99CCFF'
+  }
+});
+
+map.addLayer({
+  id: 'selected-water',
+  source: {
+    type: 'geojson',
+    data: { "type": "FeatureCollection", "features": [] }
+  },
+  type: 'circle',
+  paint: {
+    'circle-color': '#0000ff',
+    'circle-radius': 3,
+    'circle-stroke-color': '#0000FF'
+     }
+});
+
+// Draw the search radius on the map
+map.addLayer({
+  id: 'search-radius',
+  source: {
+    type: 'geojson',
+    data: { "type": "FeatureCollection", "features": [] }
+  },
+  type: 'fill',
+  paint: {
+    'fill-color': '#ccffff',
+    'fill-opacity': 0.5
+  }
+});
     });
 
     //Click event goes here!
+    map.on('click', function(e) {
+          var eventLngLat = [e.lngLat.lng, e.lngLat.lat];
+          //console.log(eventLngLat)
+          var searchRadius = makeRadius(eventLngLat, 500);
+          map.getSource('search-radius').setData(searchRadius);
+          var featuresInBuffer = spatialJoin('OSM-water', searchRadius);
+          map.getSource('selected-water').setData(turf.featureCollection(featuresInBuffer));
 
+        });
     //makeRadius function goes here!
-
+function makeRadius(lngLatArray, radiusInMeters){
+  var point = turf.point(lngLatArray);
+  var buffered = turf.buffer(point, radiusInMeters, { units: 'meters' });
+  return buffered;
+}
     //spatialJoin function goes here!
+    function spatialJoin(sourceLayer, filterFeature) {
+  // Need this line to specify the array since map.getSource in the click event doesn't do this.
+  sourceGeoJSON = map.querySourceFeatures(sourceLayer);
+  // Loop through all the features in the source geojson and return the ones that
+  // are inside the filter feature (buffered radius) and are confirmed landing sites
+  var joined = sourceGeoJSON.filter(function (feature) {
+    return turf.booleanPointInPolygon(feature, filterFeature) && feature.properties.type === 'Free_standing';
+  });
+
+  return joined;
+};
 
   </script>
 
